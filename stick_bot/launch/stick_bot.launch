@@ -1,12 +1,20 @@
 <launch>
+  <arg name="usb_camera" default="true" />
   <arg name="rplidar" default="true" />
   <arg name="cartographer" default="true" />
   <arg name="joystick" default="true" />
 
+  <!-- USB Camera -->
+  <group if="$(arg usb_camera)">
+    <node pkg="usb_cam" type="usb_cam_node" name="usb_cam" />
+  </group>
+
+  <!-- RPLidar-->
   <group if="$(arg rplidar)">
     <include file="$(find stick_bot_sensors)/launch/rplidar.launch" />
   </group>
-
+ 
+  <!-- Google Cartographer -->
   <group if="$(arg cartographer)">
     <include file="$(find stick_bot_slam)/launch/google_cartographer_2d.launch" />
   </group>
