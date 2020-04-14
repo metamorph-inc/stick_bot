@@ -1,0 +1,48 @@
+# Teleop configuration for Microsoft Xbox One controller with Wireless USB Dongle.
+# Left thumb-stick up/down for velocity, left/right for twist
+# A button for enable
+# Left thumb-stick button for enable-turbo
+#
+#
+# BUTTON         Value
+#   LB             4
+#   RB             5
+#   LS             9
+#   RS             10
+#   A              0
+#   B              1
+#   X              2
+#   Y              3
+#   View           6
+#   Menu           7
+#
+# AXIS           Value
+# Left Horiz.      0
+# Left Vert.       1
+# Right Horiz.     3
+# Right Vert.      4
+# LT               2
+# RT               5
+# D-pad Horiz.     6
+# D-pad Vert.      7
+
+teleop:
+  rotate_shoulder:
+    type: topic
+    message_type: geometry_msgs/Twist
+    topic_name: arm/shoulder/cmd_vel
+    axis_mappings:
+      -
+        axis: 4
+        target: angular.z
+        scale: 0.5
+
+  adjust_elbow_pitch:
+    type: topic
+    message_type: geometry_msgs/Twist
+    topic_name: arm/elbow/cmd_vel
+    axis_mappings:
+      -
+        axis: 7
+        target: angular.z
+        scale: -0.5

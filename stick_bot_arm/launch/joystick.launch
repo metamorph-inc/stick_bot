@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<launch>
+  <!-- these are the arguments you can pass this launch file, for example control:=false -->
+  <arg name="joystick" default="true"/>
+  <arg name="joy_dev" default="$(optenv HEBI_ARM_JOY_DEVICE /dev/input/js0)" />
+
+  <group if="$(arg joystick)">
+    <rosparam command="load" file="$(find stick_bot_arm)/config/xbox_one/joystick.yaml" />
+    <node pkg="joy" type="joy_node" name="joy_node" />
+  </group>
+
+</launch>

@@ -1,0 +1,41 @@
+<launch>
+  <arg name="rplidar" default="true" />
+  <arg name="cartographer" default="true" />
+  <arg name="joystick" default="true" />
+
+  <group if="$(arg rplidar)">
+    <include file="$(find stick_bot_sensors)/launch/rplidar.launch" />
+  </group>
+
+  <group if="$(arg cartographer)">
+    <include file="$(find stick_bot_slam)/launch/google_cartographer_2d.launch" />
+  </group>
+
+  <!-- Move Base -->
+  <include file="$(find hebi_base_hardware)/launch/diff_drive/hebi_base.launch">
+    <arg name="control" value="true" />
+    <arg name="teleop" value="true" />
+    <arg name="joystick" value="false" />
+  </include>
+
+  <!-- Turret -->
+  <include file="$(find stick_bot_arm)/launch/turret.launch">
+    <arg name="joystick" value="false" />
+  </include>
+
+  <!-- Arm -->
+  <include file="$(find stick_bot_arm)/launch/arm.launch">
+    <arg name="joystick" value="false" />
+  </include>
+
+  <!-- Gripper -->
+  <include file="$(find stick_bot_arm)/launch/gripper.launch">
+    <arg name="joystick" value="false" />
+  </include>
+
+  <!-- Joystick -->
+  <group if="$(arg joystick)">
+    <include file="$(find stick_bot_arm)/launch/joystick.launch" />
+  </group>
+
+</launch>

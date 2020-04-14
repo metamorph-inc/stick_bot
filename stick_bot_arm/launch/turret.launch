@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<launch>
+  <!-- these are the arguments you can pass this launch file, for example control:=false -->
+  <arg name="teleop" default="true"/>
+  <arg name="joystick" default="true"/>
+
+  <group if="$(arg teleop)">
+    <rosparam command="load" file="$(find stick_bot_arm)/config/xbox_one/turret_teleop.yaml" />
+    <node pkg="joy_teleop" type="joy_teleop.py" name="teleop"/>
+  </group>
+
+  <group if="$(arg joystick)">
+    <include file="$(find stick_bot_arm/launch/joystick.launch" />
+    <node pkg="joy_teleop" type="joy_teleop.py" name="teleop"/>
+  </group>
+
+  <node pkg="stick_bot_arm" type="hebi_turret_node" name="stick_bot_turret" output="screen">
+        <rosparam subst_value="true">
+
+            hebi_mapping: Turret/Base
+            hebi_gains_fname: $(find stick_bot_arm)/gains/turret/x8_16.xml
+            rotate_min: -4.71239
+            rotate_max: 4.71239
+
+        </rosparam>
+    </node>
+
+</launch>

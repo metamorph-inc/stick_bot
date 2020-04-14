@@ -1,0 +1,8 @@
+<launch>
+  <arg name="joystick" value="true" />
+
+  <!-- Joystick -->
+  <group if="$(arg joystick)">
+    <include file="$(find stick_bot_arm)/launch/joystick.launch" />
+  <group>
+</launch>
