@@ -166,7 +166,7 @@
     <child link="hebi_x8_16_2Z_0"/>
     <origin rpy="1.49975978266e-32 -6.12323399574e-17 3.14159265359" xyz="4.67700711639e-17 9.38208807873e-16 0.0047752"/>
   </joint>
-  <joint name="DiffDriveBase/FrontLeft/X8_16" type="revolute">
+  <joint name="DiffDriveBase/FrontLeft/X8_3" type="revolute">
     <parent link="hebi_x8_16_2Z_0"/>
     <child link="pm_2155_01_0"/>
     <origin rpy="-7.49879891331e-33 1.18329135783e-30 3.14159265359" xyz="-2.75851691508e-18 -1.73288773498e-16 0.04505"/>
@@ -174,7 +174,7 @@
     <dynamics damping="0.5" friction="0.06"/>
     <limit effort="100" lower="-2.14e9" upper="+2.14e9" velocity="100"/>
   </joint>
-  <gazebo reference="DiffDriveBase/FrontLeft/X8_16">
+  <gazebo reference="DiffDriveBase/FrontLeft/X8_3">
     <implicitSpringDamper>True</implicitSpringDamper>
   </gazebo>
   <joint name="pm_2155_01_0_to_pp_2074_08_0" type="fixed">
@@ -187,21 +187,21 @@
     <child link="a_2043_01_2"/>
     <origin rpy="1.57079632679 1.57079632679 0.0" xyz="-0.13 -0.1778 -0.023190956766"/>
   </joint>
-  <joint name="a_2043_01_2_to_DiffDriveBase/RearRight" type="fixed">
+  <joint name="a_2043_01_2_to_hebi_x8_16_16Z_54" type="fixed">
     <parent link="a_2043_01_2"/>
-    <child link="DiffDriveBase/RearRight"/>
+    <child link="hebi_x8_16_16Z_54"/>
     <origin rpy="-1.49975978266e-32 -6.12323399574e-17 3.14159265359" xyz="-6.52063401807e-18 8.5557524961e-17 0.0047752"/>
   </joint>
-  <joint name="DiffDriveBase/RearRight" type="continuous">
-    <parent link="DiffDriveBase/RearRight"/>
+  <joint name="DiffDriveBase/RearRight/X8_3" type="revolute">
+    <parent link="hebi_x8_16_16Z_54"/>
     <child link="pm_2155_01_1"/>
     <origin rpy="7.49879891331e-33 1.18329135783e-30 3.14159265359" xyz="-2.75851691508e-18 -3.11802263455e-17 0.04505"/>
     <axis xyz="6.12323399574e-17 6.12323399574e-17 1.0"/>
     <dynamics damping="0.5" friction="0.06"/>
-    <limit effort="20" velocity="30"/>
-    <dynamics damping="0.5" friction="0.5"/>
+    <limit effort="100" lower="-2.14e9" upper="+2.14e9" velocity="100"/>
+    <dynamics damping="0.5" friction="0.06"/>
   </joint>
-  <gazebo reference="DiffDriveBase/RearRight">
+  <gazebo reference="DiffDriveBase/RearRight/X8_3">
     <implicitSpringDamper>True</implicitSpringDamper>
   </gazebo>
   <joint name="pm_2155_01_1_to_pp_2074_08_1" type="fixed">
@@ -219,7 +219,7 @@
     <child link="hebi_x8_16_16Z_0"/>
     <origin rpy="-3.31635770885e-45 -6.12323399574e-17 3.14159265359" xyz="4.67700711639e-17 -9.37624014534e-16 0.0047752"/>
   </joint>
-  <joint name="DiffDriveBase/RearLeft/X8_16" type="revolute">
+  <joint name="DiffDriveBase/RearLeft/X8_3" type="revolute">
     <parent link="hebi_x8_16_16Z_0"/>
     <child link="pm_2155_01_2"/>
     <origin rpy="1.65817885443e-45 1.18329135783e-30 3.14159265359" xyz="-2.75851691508e-18 1.10928320807e-16 0.04505"/>
@@ -227,7 +227,7 @@
     <dynamics damping="0.5" friction="0.06"/>
     <limit effort="100" lower="-2.14e9" upper="+2.14e9" velocity="100"/>
   </joint>
-  <gazebo reference="DiffDriveBase/RearLeft/X8_16">
+  <gazebo reference="DiffDriveBase/RearLeft/X8_3">
     <implicitSpringDamper>True</implicitSpringDamper>
   </gazebo>
   <joint name="pm_2155_01_2_to_pp_2074_08_2" type="fixed">
@@ -255,7 +255,7 @@
     <child link="hebi_x8_16_1Z_0"/>
     <origin rpy="-1.49975978266e-32 -6.12323399574e-17 3.14159265359" xyz="-2.96792033927e-18 8.5557524961e-17 0.0047752"/>
   </joint>
-  <joint name="DiffDriveBase/FrontRight/X8_16" type="revolute">
+  <joint name="DiffDriveBase/FrontRight/X8_3" type="revolute">
     <parent link="hebi_x8_16_1Z_0"/>
     <child link="pm_2155_01_3"/>
     <origin rpy="7.49879891331e-33 1.18329135783e-30 3.14159265359" xyz="-2.75851691508e-18 -3.11802263455e-17 0.04505"/>
@@ -263,7 +263,7 @@
     <dynamics damping="0.5" friction="0.06"/>
     <limit effort="100" lower="-2.14e9" upper="+2.14e9" velocity="100"/>
   </joint>
-  <gazebo reference="DiffDriveBase/FrontRight/X8_16">
+  <gazebo reference="DiffDriveBase/FrontRight/X8_3">
     <implicitSpringDamper>True</implicitSpringDamper>
   </gazebo>
   <joint name="pm_2155_01_3_to_pp_2074_08_3" type="fixed">
@@ -421,9 +421,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="3.22410558223e-12 8.3502854391e-12 0.03175"/>
+      <origin rpy="0 0 0" xyz="3.22410558223e-12 8.3502854391e-12 0.015875"/>
       <geometry>
-        <mesh filename="package://stickbot_generated_urdf/meshes/pp_2074_08_prt.stl" scale="0.001 0.001 0.001"/>
+        <cylinder length="0.0254" radius="0.1016"/>
       </geometry>
     </collision>
     <inertial>
@@ -435,12 +435,13 @@
   <gazebo reference="pp_2074_08_3">
     <selfCollide>True</selfCollide>
     <material>Gazebo/Black</material>
-    <mu1>0.7</mu1>
-    <mu2>0.7</mu2>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
     <kp>1000000</kp>
     <kd>1</kd>
-    <minDepth>0.001</minDepth>
+    <minDepth>0.000</minDepth>
     <maxVel>50</maxVel>
+    <maxContacts>1</maxContacts>
   </gazebo>
   <link name="a_2089_01_6Z_0">
     <visual>
@@ -654,9 +655,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="-3.22450467029e-12 -8.35106996524e-12 0.03175"/>
+      <origin rpy="0 0 0" xyz="3.22410558223e-12 8.3502854391e-12 0.015875"/>
       <geometry>
-        <mesh filename="package://stickbot_generated_urdf/meshes/pp_2074_08_prt.stl" scale="0.001 0.001 0.001"/>
+        <cylinder length="0.0254" radius="0.1016"/>
       </geometry>
     </collision>
     <inertial>
@@ -668,14 +669,15 @@
   <gazebo reference="pp_2074_08_1">
     <selfCollide>True</selfCollide>
     <material>Gazebo/Black</material>
-    <mu1>0.7</mu1>
-    <mu2>0.7</mu2>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
     <kp>1000000</kp>
     <kd>1</kd>
-    <minDepth>0.001</minDepth>
+    <minDepth>0.000</minDepth>
     <maxVel>50</maxVel>
+    <maxContacts>1</maxContacts>
   </gazebo>
-  <link name="DiffDriveBase/RearRight">
+  <link name="hebi_x8_16_16Z_54">
     <visual>
       <origin rpy="0 0 0" xyz="-1.56191985342e-17 -1.40834381902e-18 0.023"/>
       <geometry>
@@ -694,7 +696,7 @@
       <inertia ixx="0.00252497997304" ixy="-0.000307494501523" ixz="2.34381592723e-05" iyy="0.00412897878772" iyz="6.0494430943e-06" izz="0.0050506140471"/>
     </inertial>
   </link>
-  <gazebo reference="DiffDriveBase/RearRight">
+  <gazebo reference="hebi_x8_16_16Z_54">
     <selfCollide>True</selfCollide>
     <material>Gazebo/Red</material>
     <mu1>0.1</mu1>
@@ -703,46 +705,22 @@
     <kd>1</kd>
     <minDepth>0.001</minDepth>
     <maxVel>100</maxVel>
-    <sensor name="DiffDriveBase/RearRight/imu_sensor" type="imu">
+    <sensor name="hebi_x8_16_16Z_54/imu_sensor" type="imu">
       <always_on>true</always_on>
       <update_rate>100</update_rate>
       <visualize>true</visualize>
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-        <topicName>/hebiros_gazebo_plugin/imu/DiffDriveBase/RearRight</topicName>
-        <bodyName>DiffDriveBase/RearRight/imu_link</bodyName>
+        <topicName>/hebiros_gazebo_plugin/imu/hebi_x8_16_16Z_54</topicName>
+        <bodyName>hebi_x8_16_16Z_54/imu_link</bodyName>
         <updateRateHZ>10.0</updateRateHZ>
         <gaussianNoise>0.0</gaussianNoise>
         <xyzOffset>0.025 0 0.003</xyzOffset>
         <rpyOffset>0 0 0</rpyOffset>
-        <frameName>DiffDriveBase/RearRight/imu_link</frameName>
+        <frameName>hebi_x8_16_16Z_54/imu_link</frameName>
       </plugin>
       <pose>0 0 0 0 0 0</pose>
     </sensor>
   </gazebo>
-
-  <link name="HEBI_SIM/DiffDriveBase/RearRight/X8_3">
-    <visual>
-      <origin rpy="  0 0 0" xyz="-0.03 0 0.02"/>
-      <geometry>
-        <sphere radius="0.001"  />
-      </geometry>
-    </visual>
-    <inertial>
-      <mass value="0.001"  />
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <inertia ixx="0.000001"   ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
-    </inertial>
-  </link>
-  <joint name="HEBI_SIM_JOINT/DiffDriveBase/RearRight" type="fixed">
-    <parent link="DiffDriveBase/RearRight"/>
-    <child link="HEBI_SIM/DiffDriveBase/RearRight/X8_3"  />
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-  </joint>
-  <gazebo reference="HEBI_SIM_JOINT/DiffDriveBase/RearRight">
-    <disableFixedJointLumping>true</disableFixedJointLumping>
-    <preserveFixedJoint>true</preserveFixedJoint>
-  </gazebo>
-
   <link name="pm_2155_01_3">
     <visual>
       <origin rpy="0 0 0" xyz="-0.00099182129 -0.0071643037 -0.000236828"/>
@@ -780,9 +758,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="7.44914775704e-12 1.23763530372e-11 0.03175"/>
+      <origin rpy="0 0 0" xyz="3.22410558223e-12 8.3502854391e-12 0.015875"/>
       <geometry>
-        <mesh filename="package://stickbot_generated_urdf/meshes/pp_2074_08_prt.stl" scale="0.001 0.001 0.001"/>
+        <cylinder length="0.0254" radius="0.1016"/>
       </geometry>
     </collision>
     <inertial>
@@ -794,12 +772,13 @@
   <gazebo reference="pp_2074_08_2">
     <selfCollide>True</selfCollide>
     <material>Gazebo/Black</material>
-    <mu1>0.7</mu1>
-    <mu2>0.7</mu2>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
     <kp>1000000</kp>
     <kd>1</kd>
-    <minDepth>0.001</minDepth>
+    <minDepth>0.000</minDepth>
     <maxVel>50</maxVel>
+    <maxContacts>1</maxContacts>
   </gazebo>
   <link name="a_2119_01_15Z_0">
     <visual>
@@ -1216,9 +1195,9 @@
       </geometry>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="1.37817935453e-11 1.92220120108e-11 0.03175"/>
+      <origin rpy="0 0 0" xyz="3.22410558223e-12 8.3502854391e-12 0.015875"/>
       <geometry>
-        <mesh filename="package://stickbot_generated_urdf/meshes/pp_2074_08_prt.stl" scale="0.001 0.001 0.001"/>
+        <cylinder length="0.0254" radius="0.1016"/>
       </geometry>
     </collision>
     <inertial>
@@ -1230,12 +1209,13 @@
   <gazebo reference="pp_2074_08_0">
     <selfCollide>True</selfCollide>
     <material>Gazebo/Black</material>
-    <mu1>0.7</mu1>
-    <mu2>0.7</mu2>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
     <kp>1000000</kp>
     <kd>1</kd>
-    <minDepth>0.001</minDepth>
+    <minDepth>0.000</minDepth>
     <maxVel>50</maxVel>
+    <maxContacts>1</maxContacts>
   </gazebo>
   <link name="hebi_x8_16_16Z_0">
     <visual>
@@ -1676,6 +1656,6 @@
   </gazebo>
   <!--HEBI-ROS Gazebo Plugin-->
   <gazebo>
-    <plugin filename="libhebi_gazebo_plugin.so" name="hebi_gazebo_plugin"  />
+    <plugin filename="libhebiros_gazebo_plugin.so" name="hebiros_gazebo_plugin"  />
   </gazebo>
 </robot>
