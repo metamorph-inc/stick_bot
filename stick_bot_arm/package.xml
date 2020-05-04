@@ -54,16 +54,19 @@
   <build_depend>joy</build_depend>
   <build_depend>joy_teleop</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>hebiros</build_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>hebi_cpp_api</build_export_depend>
   <build_export_depend>joy</build_export_depend>
   <build_export_depend>joy_teleop</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>hebiros</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>hebi_cpp_api</exec_depend>
   <exec_depend>joy</exec_depend>
   <exec_depend>joy_teleop</exec_depend>
   <exec_depend>roscpp</exec_depend>
+  <exec_depend>hebiros</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

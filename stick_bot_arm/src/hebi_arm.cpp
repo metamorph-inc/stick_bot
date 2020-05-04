@@ -2,31 +2,30 @@
 #include <math.h>
 #include <thread>
 #include <boost/assign/list_of.hpp>
-#include <boost/algorithm/string.hpp> 
+#include <boost/algorithm/string.hpp>
 #include "Eigen/Dense"
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
-#include "hebi_cpp_api/lookup.hpp"
-#include "hebi_cpp_api/group.hpp"
-#include "hebi_cpp_api/group_command.hpp"
-#include "hebi_cpp_api/group_feedback.hpp"
+#include "sensor_msgs/JointState.h"
+#include "hebiros/AddGroupFromNamesSrv.h"
+#include "hebiros/SendCommandWithAcknowledgementSrv.h"
+#include "hebiros/CommandMsg.h"
 
 
 // Global variables
 // TODO: Should probably rewrite this as a class to avoid globals.
+std::vector<double> g_position_fbk;
 double g_shoulder_vel_target = 0.0;
 double g_elbow_vel_target = 0.0;
 
 // Function declarations
 std::vector<std::string> getHebiFamilyNameFromMapping(const std::string &hebi_mapping);
 
-void setHebiGainsFromFile(const std::string &hebi_gains_fname, hebi::Group &hebi_group);
-
-void printHebiLookup(hebi::Lookup &hebi_lookup);
-
 void shoulder_twist_callback(const geometry_msgs::TwistConstPtr& twist);
 
 void elbow_twist_callback(const geometry_msgs::TwistConstPtr& twist);
+
+void feedback_callback(const sensor_msgs::JointState::ConstPtr& js);
 
 
 int main(int argc, char *argv[])
@@ -53,10 +52,12 @@ int main(int argc, char *argv[])
   ros::Subscriber sub_elbow = nh.subscribe("arm/elbow/cmd_vel", 1, elbow_twist_callback);
 
   // Get HEBI families and names
+  std::vector<std::string> hebi_mapping;
   std::vector<std::string> hebi_mapping_shoulder;
   std::vector<std::string> hebi_mapping_elbow;
   std::vector<std::string> hebi_families;
   std::vector<std::string> hebi_names;
+  hebi_mapping = {hebi_mapping_shoulder_str, hebi_mapping_elbow_str};
   hebi_mapping_shoulder = getHebiFamilyNameFromMapping(hebi_mapping_shoulder_str);
   hebi_mapping_elbow = getHebiFamilyNameFromMapping(hebi_mapping_elbow_str);
   hebi_families.push_back(hebi_mapping_shoulder[0]);
@@ -65,47 +66,52 @@ int main(int argc, char *argv[])
   hebi_names.push_back(hebi_mapping_elbow[1]);
 
   // Look up HEBI modules
-  hebi::Lookup lookup;
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  printHebiLookup(lookup);
-  std::shared_ptr<hebi::Group> hebi_group;
-  while (ros::ok() && !hebi_group)
+  std::string hebi_group_name = "hebi_arm";
+
+  //Create a client which uses the service to create a group
+  ros::ServiceClient add_group_client = nh.serviceClient<hebiros::AddGroupFromNamesSrv>(
+    "/hebiros/add_group_from_names");
+
+  ros::ServiceClient send_command_with_acknowledgement = nh.serviceClient<hebiros::SendCommandWithAcknowledgementSrv>(
+    "/hebiros/"+hebi_group_name+"/send_command_with_acknowledgement");
+
+  //Create a subscriber to receive feedback from a group
+  //Register feedback_callback as a callback which runs when feedback is received
+  ros::Subscriber feedback_subscriber = nh.subscribe<sensor_msgs::JointState>(
+    "/hebiros/"+hebi_group_name+"/feedback/joint_state", 100, &feedback_callback);
+
+  //Create a publisher to send desired commands to a group
+  ros::Publisher hebi_publisher = nh.advertise<sensor_msgs::JointState>(
+    "/hebiros/"+hebi_group_name+"/command/joint_state", 100);
+
+  sensor_msgs::JointState cmd_msg;
+  cmd_msg.name = hebi_mapping;
+
+  hebiros::AddGroupFromNamesSrv add_group_srv;
+  add_group_srv.request.group_name = hebi_group_name;
+  add_group_srv.request.families = hebi_families;
+  add_group_srv.request.names = hebi_names;
+  while(!add_group_client.call(add_group_srv)) {}
+
+  // Set HEBI Gains
+  hebiros::SendCommandWithAcknowledgementSrv send_cmd_w_ack_srv;
+  send_cmd_w_ack_srv.request.command.name = hebi_mapping;
+  send_cmd_w_ack_srv.request.command.settings.name = hebi_mapping;
+  send_cmd_w_ack_srv.request.command.settings.control_strategy = {4, 4, 4, 4};
+  send_cmd_w_ack_srv.request.command.settings.position_gains.kp = {24, 45};
+  send_cmd_w_ack_srv.request.command.settings.velocity_gains.kp = {0.05, 0.03};
+  send_command_with_acknowledgement.call(send_cmd_w_ack_srv);
+
+  // Wait for HEBIROS Feedback
+  while(g_position_fbk.empty())
   {
-    hebi_group = lookup.getGroupFromNames(hebi_families, hebi_names, 10000);
-    ROS_WARN("Looking for HEBI Group...");
     r.sleep();
-  }
-  ROS_WARN("Found HEBI Group.");
-
-  // Set HEBI Gains from file
-  setHebiGainsFromFile(hebi_gains_fname, *hebi_group);
-
-  // HEBI Command and Feedback
-  constexpr double feedback_frequency = 200;
-  hebi_group->setFeedbackFrequencyHz(feedback_frequency);
-  std::shared_ptr<hebi::GroupFeedback> hebi_feedback;
-  hebi_feedback = std::make_shared<hebi::GroupFeedback>(hebi_group->size());
-  constexpr long command_lifetime = 250;
-  hebi_group->setCommandLifetimeMs(command_lifetime);
-  std::shared_ptr<hebi::GroupCommand> hebi_command;
-  hebi_command = std::make_shared<hebi::GroupCommand>(hebi_group->size());
-
-  // Try to get HEBI feedback
-  constexpr int max_attempts = 20;
-  int num_attempts = 0;
-  while (!hebi_group->getNextFeedback(*hebi_feedback)) {
-    if (num_attempts++ > max_attempts) {
-      ROS_ERROR("Unable to get HEBI Group Feedback after %s attempts...", std::to_string(num_attempts).c_str());
-      // do nothing... for now;
-    }
+    ros::spinOnce();
   }
 
-  bool feedback_received = false;
-  Eigen::VectorXd hebi_positions;
-  Eigen::VectorXd cmd_positions = Eigen::VectorXd(hebi_group->size()).setZero();
-  //Eigen::VectorXd cmd_velocities = Eigen::VectorXd(hebi_group->size()).setZero();
+  std::vector<double> cmd_positions = {0.0, 0.0};
   double shoulder_velocity_target;
-  double shoulder_position_target = hebi_feedback->getPosition()[0];
+  double shoulder_position_target = g_position_fbk[0];
   double elbow_velocity_target;
   double elbow_position_target;
   double elbow_offset_target = 0.0;
@@ -113,39 +119,23 @@ int main(int argc, char *argv[])
   // main loop
   while (ros::ok())
   {
-    // get hebi feedback
-    if (hebi_group->getNextFeedback(*hebi_feedback))
-    {
-      feedback_received = true;
-    } else {
-      feedback_received = false;
-    }
+    // get velocity target
+    shoulder_velocity_target = g_shoulder_vel_target;
+    elbow_velocity_target = g_elbow_vel_target;
 
-    if (feedback_received)
-    {
-      // get current position
-      hebi_positions = hebi_feedback->getPosition();
+    // calculate position target
+    shoulder_position_target += (shoulder_velocity_target * r.expectedCycleTime().toSec());
+    shoulder_position_target = fmax(rotate_min, fmin(rotate_max, shoulder_position_target));
 
-      // get velocity target
-      shoulder_velocity_target = g_shoulder_vel_target;
-      elbow_velocity_target = g_elbow_vel_target;
+    elbow_offset_target += (elbow_velocity_target * r.expectedCycleTime().toSec());
+    elbow_position_target = (shoulder_position_target + (M_PI/2.0)) + elbow_offset_target;
 
-      // calculate position target
-      shoulder_position_target += (shoulder_velocity_target * r.expectedCycleTime().toSec());
-      shoulder_position_target = fmax(rotate_min, fmin(rotate_max, shoulder_position_target));
-
-      elbow_offset_target += (elbow_velocity_target * r.expectedCycleTime().toSec());
-      elbow_position_target = (shoulder_position_target + (M_PI/2.0)) + elbow_offset_target;
-
-      // send position command to hardware
-      // TODO: Maybe mix in velocity command
-      cmd_positions[0] = shoulder_position_target;
-      cmd_positions[1] = elbow_position_target;
-      hebi_command->setPosition(cmd_positions);
-      //cmd_velocities[0] = velocity_target;
-      //hebi_command->setVelocity(cmd_velocities);
-      hebi_group->sendCommand(*hebi_command);
-    }
+    // send position command to hardware
+    // TODO: Maybe mix in velocity command
+    cmd_positions[0] = shoulder_position_target;
+    cmd_positions[1] = elbow_position_target;
+    cmd_msg.position = cmd_positions;
+    hebi_publisher.publish(cmd_msg);
 
     ros::spinOnce();
     r.sleep();
@@ -163,29 +153,6 @@ std::vector<std::string> getHebiFamilyNameFromMapping(const std::string &hebi_ma
   return hebi_mapping_vector;
 }
 
-void setHebiGainsFromFile(const std::string &hebi_gains_fname, hebi::Group &hebi_group)
-{
-  hebi::GroupCommand gains_command(hebi_group.size());
-  if (!gains_command.readGains(hebi_gains_fname)) {
-    ROS_WARN("Could not read %s", hebi_gains_fname.c_str());
-  } else {
-    if (!hebi_group.sendCommandWithAcknowledgement(gains_command)) {
-      ROS_WARN("Could not send gains");
-    }
-  }
-}
-
-void printHebiLookup(hebi::Lookup &hebi_lookup)
-{
-  // Print snapshot to screen
-  auto entry_list = hebi_lookup.getEntryList();
-  ROS_INFO("Modules found on network (Family | Name):");
-  for (auto entry : *entry_list)
-  {
-    ROS_INFO("%s | %s", entry.family_.c_str(), entry.name_.c_str());
-  }
-}
-
 void shoulder_twist_callback(const geometry_msgs::TwistConstPtr& twist)
 {
   g_shoulder_vel_target = twist->angular.z;
@@ -194,4 +161,9 @@ void shoulder_twist_callback(const geometry_msgs::TwistConstPtr& twist)
 void elbow_twist_callback(const geometry_msgs::TwistConstPtr& twist)
 {
   g_elbow_vel_target = twist->angular.z;
+}
+
+void feedback_callback(const sensor_msgs::JointState::ConstPtr& js)
+{
+  g_position_fbk = js->position;
 }

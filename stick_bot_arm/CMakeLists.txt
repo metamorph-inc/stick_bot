@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   joy
   joy_teleop
   roscpp
+  hebiros
 )
 
 ## System dependencies are found with CMake's conventions
